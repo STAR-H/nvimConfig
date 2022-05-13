@@ -3,7 +3,7 @@
     "suggest.triggerAfterInsertEnter": true,
     "suggest.timeout": 500,
     "suggest.enablePreview": true,
-    "suggest.snippetIndicator": "🌟",
+    "suggest.snippetIndicator": "\uf12e",
     "suggest.minTriggerInputLength": 3,
     "suggest.noselect": false,
     "suggest.detailField": "abbr",
@@ -61,6 +61,9 @@
     "explorer.position": "right",
     "explorer.icon.enableNerdfont": true,
     "explorer.icon.source": "vim-devicons",
-    "explorer.git.enable": true
-    
+    "explorer.git.enable": true,
+    "git.blameUseRealTime": true,
+    "git.enableGlobalStatus": true,
+    "git.enableGutters": true,
+    "git.addGBlameToVirtualText": false
 }
