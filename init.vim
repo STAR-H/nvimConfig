@@ -475,6 +475,28 @@ nmap mc <Plug>MarkConfirmAllClear
 nmap n <Plug>MarkSearchOrCurNext
 nmap N <Plug>MarkSearchOrCurPrev
 
+" transfer/read and write one block of text between vim sessions
+" Usage:
+" 'from' session:
+" ma
+" move to end-of-block
+" xw
+"
+" 'to' session:
+" move to where I want block inserted
+" xr
+"
+if has("unix")
+  nmap xr :r $HOME/.vimxfer<CR>
+  nmap xw :'a,.w! $HOME/.vimxfer<CR>
+  vmap xr c<Esc>:r $HOME/.vimxfer<CR>
+  vmap xw :w! $HOME/.vimxfer<CR>
+else
+  nmap xr :r c:/.vimxfer<CR>
+  nmap xw :'a,.w! c:/.vimxfer<CR>
+  vmap xr c<Esc>:r c:/.vimxfer<CR>
+  vmap xw :w! c:/.vimxfer<CR>
+endif
 "generate ctags
 "ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extras=+qf --language-force=c++ -f .tags
 " remove unuseless wasteful whitespace end of line
