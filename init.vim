@@ -75,7 +75,7 @@ set smarttab
 " set nowrap
 set wrap
 set backspace=2
-set textwidth=80
+set textwidth=81
 
 "===
 "=== 代码补全
@@ -129,7 +129,6 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'chxuan/vim-buffer'
-Plug 'preservim/nerdtree', {'on': 'NERDTreeToggle'}
 Plug 'tpope/vim-commentary'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'Yggdroot/indentLine',{ 'for': ['c', 'h', 'cpp', 'py', 'json',  'vim'] }
@@ -139,10 +138,14 @@ Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/vim-easy-align'
 Plug 'luochen1990/rainbow'
 Plug 'MattesGroeger/vim-bookmarks'
-Plug 't9md/vim-quickhl'
-Plug 'guns/xterm-color-table.vim'
+Plug 'inkarkat/vim-mark'
+" dependency for vim-mark
+Plug 'inkarkat/vim-ingo-library'
+"Plug 'guns/xterm-color-table.vim'
 Plug 'ellisonleao/gruvbox.nvim'
 Plug 'rktjmp/lush.nvim'
+Plug 'voldikss/vim-translator'
+Plug 'tpope/vim-fugitive'
 call plug#end()
 
 "===
@@ -252,15 +255,6 @@ let g:airline#extensions#tabline#buffer_idx_format = {
             \}
 
 "===
-"=== nerdTree
-"===
-nnoremap <silent> <leader>n :NERDTreeToggle<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-let NERDTreeNodeDelimiter="😀"       "smiley face
-let NERDTreeChDirMode=2
-let NERDTreeWinPos="right"
-
-"===
 "=== tagbar
 "===
 nmap <silent> <leader>t :TagbarToggle<CR>
@@ -268,7 +262,7 @@ let g:tagbar_width = 40
 let g:tagbar_autofocus = 1
 let g:tagbar_sort = 1
 let g:tagbar_autoshowtag = 0
-let g:tagbar_left = 1
+let g:tagbar_position = 'topleft vertical'
 let g:tagbar_scopestrs = {
             \    'class': "\uf0e8",
             \    'const': "\uf8ff",
@@ -286,14 +280,45 @@ let g:tagbar_scopestrs = {
             \    'setter': "\uf7a9",
             \    'variable': "\uf71b",
             \ }
+let g:tagbar_type_cpp = {
+                        \ 'ctagstype' : 'c++',
+                        \ 'kinds'     : [
+                        \ 'd:macros:1:0',
+                        \ 'p:prototypes:1:0',
+                        \ 'g:enums',
+                        \ 'e:enumerators:0:0',
+                        \ 't:typedefs:0:0',
+                        \ 'n:namespaces',
+                        \ 'c:classes',
+                        \ 's:structs',
+                        \ 'u:unions',
+                        \ 'f:functions',
+                        \ 'm:members:0:0',
+                        \ 'v:variables:0:0'
+                        \ ],
+                        \ 'sro'        : '::',
+                        \ 'kind2scope' : {
+                        \ 'g' : 'enum',
+                        \ 'n' : 'namespace',
+                        \ 'c' : 'class',
+                        \ 's' : 'struct',
+                        \ 'u' : 'union'
+                        \ },
+                        \ 'scope2kind' : {
+                        \ 'enum'      : 'g',
+                        \ 'namespace' : 'n',
+                        \ 'class'     : 'c',
+                        \ 'struct'    : 's',
+                        \ 'union'     : 'u'
+                        \ }
+                        \ }
 
 "===
 "=== neovim
 "===
 "
 let g:loaded_ruby_provider = 0
-let g:python3_host_prog = "/usr/bin/python3"
-let g:python_host_prog = "/usr/bin/python2"
+let g:python3_host_prog = "opt/homebrew/bin/python3"
 
 "===
 "=== coc.nvim
@@ -303,10 +328,9 @@ let g:coc_global_extensions = [
             \ 'coc-lists',
             \ 'coc-clangd',
             \ 'coc-floatinput',
-            \ 'coc-git',
+            \ 'coc-explorer',
             \ 'coc-jedi',
             \ 'coc-pyright',
-            \ 'coc-python',
             \ 'coc-actions',
             \ 'coc-syntax']
 
@@ -332,33 +356,6 @@ inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-    if (index(['vim','help'], &filetype) >= 0)
-        execute 'h '.expand('<cword>')
-    elseif (coc#rpc#ready())
-        call CocActionAsync('doHover')
-    else
-        execute '!' . &keywordprg . " " . expand('<cword>')
-    endif
-endfunction
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" provide custom statusline: lightline.vim, vim-airline.
-" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 augroup mygroup
     autocmd!
@@ -368,19 +365,6 @@ augroup mygroup
 augroup end
 
 
-" Apply AutoFix to problem on the current line.
-nmap <leader>ff  <Plug>(coc-fix-current)
-
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
-
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-
 " Mappings for CoCList
 " Show all diagnostics.
 nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
@@ -388,27 +372,8 @@ nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
 nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 " Show commands.
 nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-
-"coc-git
-"navigate chunks of current buffer
-nmap [g <Plug>(coc-git-prevchunk)
-nmap ]g <Plug>(coc-git-nextchunk)
-" navigate conflicts of current buffer
-nmap [c <Plug>(coc-git-prevconflict)
-nmap ]c <Plug>(coc-git-nextconflict)
-" show chunk diff at current position
-nmap gs <Plug>(coc-git-chunkinfo)
-" show commit contains current position
-"nmap gc <Plug>(coc-git-commit)
-" create text object for git chunks
-omap ig <Plug>(coc-git-chunk-inner)
-xmap ig <Plug>(coc-git-chunk-inner)
-omap ag <Plug>(coc-git-chunk-outer)
-xmap ag <Plug>(coc-git-chunk-outer)
+" coc-explorer
+nmap <leader>n <Cmd>CocCommand explorer<CR>
 
 "===
 "=== indentLine
@@ -425,6 +390,15 @@ let g:indentLine_bufTypeExclude = ['help', 'terminal']
 "===
 "=== fzf.vim
 "===
+"useful command from fzf.vim
+"Files [PATH]
+"GFiles? equal to git status
+"Buffers list opend buffer
+"Rg [PATTERN]
+"Tags  Tags in project read from ctags -R
+"History/ Search history
+"Commits show git commits
+"Maps show Normal mode mappings
 " [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extras=+qf --language-force=c++ -f .tags'
 let g:fzf_colors =
@@ -444,7 +418,7 @@ let g:fzf_colors =
 command! -bang -nargs=* Rg
             \call fzf#vim#grep("rg --column --line-number --no-heading --color=always --ignore-case --multiline --word-regexp --".shellescape(<q-args>), 1, fzf#vim#with_preview(), <bang>0)
 "===
-"=== vim-quickhl
+"=== bookmark
 "===
 let g:bookmark_no_default_key_mappings = 1
 let g:bookmark_show_toggle_warning = 0
@@ -455,7 +429,7 @@ let g:bookmark_show_warning = 0
 let g:bookmark_auto_close = 1
 let g:bookmark_auto_save = 0
 let g:bookmark_center = 1
-let g:bookmark_sign = '♥'
+let g:bookmark_sign = '\uf02e'
 
 :highlight BookmarkSign guifg=#00ffff guibg=#3c3836
 :highlight BookmarkAnnotationSign guifg=#00ffff guibg=#3c3836
@@ -468,29 +442,28 @@ nmap bc <Plug>BookmarkClear
 nmap bx <Plug>BookmarkClearAll
 
 "===
-"=== vim-quickhl
+"=== easymotion
 "===
-nmap mm <Plug>(quickhl-manual-this)
-xmap mm <Plug>(quickhl-manual-this)
-nmap mc <Plug>(quickhl-manual-reset)
-xmap mc <Plug>(quickhl-manual-reset)
-nmap n  <Plug>(quickhl-manual-go-to-next)
-nmap N  <Plug>(quickhl-manual-go-to-prev)
-" guifg > 文字颜色
-let g:quickhl_manual_colors = [
-            \ "gui=bold ctermfg=7   ctermbg=1   guifg=#000000 guibg=#ddf3ff",
-            \ "gui=bold ctermfg=7   ctermbg=2   guifg=#000000 guibg=#f0dad2",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#000000 guibg=#ff5f00",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#000000 guibg=#fbfbea",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#ffffff guibg=#479ac7",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#000000 guibg=#00ffff",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#000000 guibg=#00ff87",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#ffffff guibg=#af0000",
-            \ "gui=bold ctermfg=7   ctermbg=3   guifg=#ffffff guibg=#8700df",
-            \ ]
+" s{char}{char} to move to {char}{char}
+nmap f <Plug>(easymotion-overwin-f2)
+
+"===
+"=== vim-mark
+"===
+"do not add mark words to the search(/)  and input(@) history
+let g:mwHistAdd = ''
+"let marks to be case-insensitive
+let g:mwIgnoreCase = 0
+let g:mwMaxMatchPriority = 10
+let g:mw_no_mappings = 1
+nmap mm <Plug>MarkSet
+xmap mm <Plug>MarkSet
+nmap mr <Plug>MarkRegex
+nmap mc <Plug>MarkConfirmAllClear
+nmap n <Plug>MarkSearchOrCurNext
+nmap N <Plug>MarkSearchOrCurPrev
+
 "generate ctags
 "ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extras=+qf --language-force=c++ -f .tags
-
 " remove unuseless wasteful whitespace end of line
 autocmd BufWritePost * :%s/\s\+$//ge
-" updatetime: Wed Aug 25 15:36:55 CST 2021
