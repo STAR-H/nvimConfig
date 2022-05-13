@@ -430,7 +430,7 @@ let g:bookmark_show_warning = 0
 let g:bookmark_auto_close = 1
 let g:bookmark_auto_save = 0
 let g:bookmark_center = 1
-let g:bookmark_sign = '\uf02e'
+let g:bookmark_sign = '\uf02c'
 
 :highlight BookmarkSign guifg=#00ffff guibg=#3c3836
 :highlight BookmarkAnnotationSign guifg=#00ffff guibg=#3c3836
@@ -447,6 +447,17 @@ nmap bx <Plug>BookmarkClearAll
 "===
 " s{char}{char} to move to {char}{char}
 nmap f <Plug>(easymotion-overwin-f2)
+
+"===
+"=== vim-translator
+"===
+let g:translator_default_engines   = ['youdao', 'haici']
+let g:translator_window_type       = 'popup'
+let g:translator_window_max_width  = 40
+let g:translator_window_max_height = 30
+" Display translation in a window
+nmap <silent> tw <Plug>TranslateW
+vmap <silent> tw <Plug>TranslateWV
 
 "===
 "=== vim-mark
